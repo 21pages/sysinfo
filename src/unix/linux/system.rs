@@ -28,6 +28,10 @@ pub(crate) static mut REMAINING_FILES: once_cell::sync::Lazy<Arc<Mutex<isize>>> 
                 // Most Linux system now defaults to 1024.
                 return Arc::new(Mutex::new(1024 / 2));
             }
+            // rlim_max is 1G on debian 13, causing pkexec not work, so we limit it to 1M (ubuntu.limits.rlim_max)
+            if limits.rlim_max > 1048576 {
+                limits.rlim_max = 1048576;
+            }
             // We save the value in case the update fails.
             let current = limits.rlim_cur;
 
